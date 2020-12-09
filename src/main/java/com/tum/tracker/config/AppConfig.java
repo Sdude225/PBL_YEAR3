@@ -9,12 +9,12 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 @Configuration
 public class AppConfig {
 
-    public MongoClient mongoClient() {
-        return MongoClients.create("mongodb+srv://sysadmin:Destroyer22@cluster0.j1yj9.mongodb.net/test");
-    }
-
-    public @Bean
-    MongoTemplate mongoTemplate() {
-        return new MongoTemplate(mongoClient(), "trackerDB");
-    }
+//    public MongoClient mongoClient() {
+//        return MongoClients.create("mongodb+srv://sysadmin:Destroyer22@cluster0.j1yj9.mongodb.net/test");
+//    }
+//
+//    public @Bean
+//    MongoTemplate mongoTemplate() {
+//        return new MongoTemplate(mongoClient(), "trackerDB");
+//    }
 }
