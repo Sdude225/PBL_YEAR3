@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <domain-config cleartextTrafficPermitted="false">
+        <domain includeSubdomains="true">google.com</domain>
+        <pin-set>
+            <pin digest="SHA-256">XL7jJ71nBgDA7ya7f7ty0JCgcuoMzHOLAl9t8SnrjFY=</pin>
+            <pin digest="SHA-256">YZPgTZ+woNCCCIW3LH2CxQeLzB/1m42QcCTBSdgayjs=</pin>
+        </pin-set>
+    </domain-config>
+</network-security-config>
