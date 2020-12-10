@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "54481602617",
+    "project_id": "tracker-783f4",
+    "storage_bucket": "tracker-783f4.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:54481602617:android:ac89e3b273ae5c4bdd25e8",
+        "android_client_info": {
+          "package_name": "com.tum.tracker"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "54481602617-6m1jd6iguvudpjkpusriuva5g42ro0ag.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBYz0o3ZFU-3UhGL4HNMe3V7Lp_lo-hU_s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "54481602617-6m1jd6iguvudpjkpusriuva5g42ro0ag.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
