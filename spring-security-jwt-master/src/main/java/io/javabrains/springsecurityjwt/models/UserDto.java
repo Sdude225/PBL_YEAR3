@@ -10,4 +10,6 @@ import lombok.Value;
 public class UserDto {
     private String email;
     private String name;
+    private boolean monitor;
+    private String linkedEmail;
 }
