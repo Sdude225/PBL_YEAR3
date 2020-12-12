@@ -4,13 +4,19 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -24,6 +30,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 
+import org.json.JSONObject;
+
 public class MainActivity extends AppCompatActivity {
 
     private static final int RC_SIGN_IN = 123;
@@ -35,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
         FirebaseUser user = mAuth.getCurrentUser();;
         if (user != null) {
-            Intent intent = new Intent(getApplicationContext(), Registration.class);
+            Intent intent = new Intent(getApplicationContext(), Profile.class); // Map.class || Profile.class
             startActivity(intent);
         }
     }
@@ -81,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
                 GoogleSignInAccount account = task.getResult(ApiException.class);
                 firebaseAuthWithGoogle(account.getIdToken());
             } catch (ApiException e) {
-                Toast.makeText(this, "WTF blea "+e.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "WTF iopta "+e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -94,12 +102,36 @@ public class MainActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             FirebaseUser user = mAuth.getCurrentUser();
-                            Intent intent = new Intent(getApplicationContext(), Registration.class);
-                            startActivity(intent);
-                        } else {
-                            Toast.makeText(MainActivity.this, "sorry buddy", Toast.LENGTH_SHORT).show();
-                        }
+                            startActivity(new Intent(getApplicationContext(), Profile.class));
+//                            if (true) //user.getEmail() not in db
+//                                startActivity(new Intent(getApplicationContext(), Registration.class));
+//                            else {
+//                                if (true) // user monitoring
+//                                    startActivity(new Intent(getApplicationContext(), Map.class));
+//                                else
+//                                    startActivity(new Intent(getApplicationContext(), Profile.class));
+//                            }
+                        } else
+                            Toast.makeText(MainActivity.this, "Sorry buddy", Toast.LENGTH_SHORT).show();
                     }
                 });
+    }
+
+    private boolean checkEmail(String email) {
+        RequestQueue queue = Volley.newRequestQueue(this);
+        String url ="http://localhost:8080/";
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        // emailul aici
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(MainActivity.this, "Request error:\n " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+        });
+        return false;
     }
 }
