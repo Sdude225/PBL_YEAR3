@@ -16,6 +16,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.auth0.android.jwt.Claim;
 import com.auth0.android.jwt.JWT;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -40,15 +41,6 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private String myJwtToken;
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        FirebaseUser user = mAuth.getCurrentUser();;
-        if (user != null) {
-            Intent intent = new Intent(getApplicationContext(), Profile.class); // Map.class || Profile.class
-            startActivity(intent);
-        }
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,14 +83,13 @@ public class MainActivity extends AppCompatActivity {
                 GoogleSignInAccount account = task.getResult(ApiException.class);
                 firebaseAuthWithGoogle(account.getIdToken());
             } catch (ApiException e) {
-                Toast.makeText(this, "WTF iopta "+e.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         }
     }
 
     private void firebaseAuthWithGoogle(String idToken) {
         AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
-        System.out.println("------->" + idToken);
         mAuth.signInWithCredential(credential)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
@@ -106,64 +97,55 @@ public class MainActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             FirebaseUser user = mAuth.getCurrentUser();
                             RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
-                            String url = "http://localhost:8080/user/login";
-                            JSONObject postData = new JSONObject();
-                            try {
-                                postData.put("token", idToken);
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                            JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, url, postData,
-                                    new Response.Listener<JSONObject>() {
-                                        @Override
-                                        public void onResponse(JSONObject response) {
-                                            try {
-                                                myJwtToken = response.getString("jwt");
-                                                System.out.println("----->>>>>>>>> " + myJwtToken);
-                                                Toast.makeText(MainActivity.this, "jwt - "+ myJwtToken, Toast.LENGTH_SHORT).show();
-                                            } catch (JSONException e) {
-                                                e.printStackTrace();
-                                            }
-                                        }
-                                    }, new Response.ErrorListener() {
-                                        @Override
-                                        public void onErrorResponse(VolleyError error) {
-                                            System.out.println("GGGGGGGGGG "+ error.getMessage());
-                                            Toast.makeText(MainActivity.this, "GG "+ error.getMessage(), Toast.LENGTH_SHORT).show();
-                                        }
-                            });
-                            queue.add(request);
-                            startActivity(new Intent(getApplicationContext(), Registration.class));
-//                            if (true) //user.getEmail() not in db
-//                                startActivity(new Intent(getApplicationContext(), Registration.class));
-//                            else {
-//                                if (true) // user monitoring
-//                                    startActivity(new Intent(getApplicationContext(), Map.class));
-//                                else
-//                                    startActivity(new Intent(getApplicationContext(), Profile.class));
-//                            }
+                            String url = "http://92.115.190.64:8080/user/login";
+                            queue.add(makeRequest(url, makePostData(idToken)));
                         } else
                             Toast.makeText(MainActivity.this, "Sorry buddy", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
 
-    private boolean checkEmail(String email) {
-        RequestQueue queue = Volley.newRequestQueue(this);
-        String url ="http://localhost:8080/";
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null,
+    private JSONObject makePostData(String token) {
+        JSONObject postData = new JSONObject();
+        try {
+            postData.put("token", token);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return postData;
+    }
+
+    private JsonObjectRequest makeRequest(String url, JSONObject postData) {
+        return new JsonObjectRequest(Request.Method.POST, url, postData,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        // emailul aici
+                        try {
+                            myJwtToken = response.getString("jwt");
+                            boolean flag = checkRole(myJwtToken);
+                            if(!flag)
+                                startActivity(new Intent(getApplicationContext(), Profile.class).putExtra("myJwtToken", myJwtToken));
+                            else
+                                startActivity(new Intent(getApplicationContext(), Map.class).putExtra("myJwtToken", myJwtToken));
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }, new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(MainActivity.this, "Request error:\n " + error.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(MainActivity.this, "Please register ", Toast.LENGTH_SHORT).show();
+                try {
+                    startActivity(new Intent(getApplicationContext(), Registration.class).putExtra("token",postData.getString("token")));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
         });
-        queue.add(jsonObjectRequest);
-        return false;
+    };
+
+    private boolean checkRole(String token) {
+        JWT jwt = new JWT(token);
+        return jwt.getClaim("monitor").asBoolean();
     }
 }
