@@ -5,8 +5,13 @@ import io.javabrains.springsecurityjwt.dao.UserRepository;
 import io.javabrains.springsecurityjwt.models.User;
 import io.javabrains.springsecurityjwt.models.UserDto;
 import lombok.RequiredArgsConstructor;
+import okhttp3.Call;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 
 
@@ -52,5 +57,20 @@ public class UserService {
         User user = getUser(email);
         if(!user.isMonitor()) return null;
         return getUser(user.getLinkEmail());
+    }
+
+
+    public boolean whenGetRequest_thenCorrect(String jwt) throws IOException {
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url("https://oauth2.googleapis.com/tokeninfo?id_token=" + jwt + "/date")
+                .build();
+
+        Call call = client.newCall(request);
+        Response response = call.execute();
+
+        String body =  response.body().string();
+        if(body.contains("error")) return false;
+        else return true;
     }
 }

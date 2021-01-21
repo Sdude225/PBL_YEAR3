@@ -37,6 +37,8 @@ public class SpringSecurityJwtApplication {
 
 }
 
+
+
 @RestController
 @RequestMapping("/user")
 @RequiredArgsConstructor
@@ -81,13 +83,18 @@ class HelloWorldController {
 
 		final String jwt = jwtTokenUtil.generateToken(user);
 
+		System.out.println("Uesr logged");
+
 		return ResponseEntity.ok(new AuthenticationResponse(jwt));
 
 	}
 
 	@RequestMapping(method = RequestMethod.POST, value = "/register")
 	public void registerUser(@RequestBody RegisterRequest registerRequest) throws Exception {
+
 		String token = registerRequest.getToken();
+
+		if(service.whenGetRequest_thenCorrect(jwtTokenUtil.extractEmail(token))) return;
 
 		try {
 			userDetailsService.loadUserByUsername(jwtTokenUtil.extractEmail(token));
@@ -123,7 +130,8 @@ class HelloWorldController {
 	public void updateCor(@RequestBody Coordinates coordinates) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		System.out.println("dsd");
-		service.updateCor(auth.getName(), coordinates.getCor());
+		System.out.println(coordinates.getCorX() + "  " + coordinates.getCorY());
+		service.updateCor(auth.getName(), new Float[] {coordinates.getCorX(), coordinates.getCorY()});
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/cor")
